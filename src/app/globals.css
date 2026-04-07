@@ -1,0 +1,152 @@
+@import "tailwindcss";
+
+:root {
+  --background: #06131a;
+  --foreground: #ecf7f5;
+  --muted: #8aa6a1;
+  --card: rgba(7, 29, 37, 0.76);
+  --card-strong: rgba(8, 35, 45, 0.94);
+  --border: rgba(171, 255, 225, 0.12);
+  --aqua: #73f5d7;
+  --mint: #c2ff63;
+  --teal: #34d7c0;
+  --sky: #72b6ff;
+  --peach: #ff9966;
+  --grid: rgba(115, 245, 215, 0.08);
+  --shadow: 0 30px 80px rgba(0, 0, 0, 0.38);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: "Bahnschrift", "Segoe UI", "Trebuchet MS", sans-serif;
+  --font-mono: "Consolas", "SFMono-Regular", monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(114, 182, 255, 0.12), transparent 26%),
+    radial-gradient(circle at 82% 18%, rgba(194, 255, 99, 0.16), transparent 18%),
+    radial-gradient(circle at 72% 68%, rgba(52, 215, 192, 0.16), transparent 22%),
+    linear-gradient(135deg, #071117 0%, #08171d 35%, #0b2027 100%);
+  color: var(--foreground);
+  font-family: "Bahnschrift", "Segoe UI", "Trebuchet MS", sans-serif;
+}
+
+body::before {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 64px 64px;
+  content: "";
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.95), transparent 92%);
+}
+
+body::after {
+  position: fixed;
+  inset: auto 0 0;
+  height: 40vh;
+  z-index: -1;
+  background: linear-gradient(to top, rgba(6, 19, 26, 0.94), transparent);
+  content: "";
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+.glass-panel {
+  background: linear-gradient(180deg, rgba(11, 41, 52, 0.88), rgba(7, 24, 31, 0.82));
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(18px);
+}
+
+.highlight-line {
+  position: relative;
+  overflow: hidden;
+}
+
+.highlight-line::after {
+  position: absolute;
+  inset: auto -20% 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(194, 255, 99, 0.84), transparent);
+  content: "";
+}
+
+.hero-orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(20px);
+  opacity: 0.85;
+}
+
+.fade-up {
+  animation: fadeUp 0.8s ease-out both;
+}
+
+.fade-up-delay {
+  animation: fadeUp 1s ease-out 0.14s both;
+}
+
+.fade-up-delay-2 {
+  animation: fadeUp 1.15s ease-out 0.24s both;
+}
+
+.wallet-button-shell .wallet-adapter-button-trigger.wallet-button-reset {
+  height: auto;
+  min-width: 0;
+  padding: 0.8rem 1.2rem;
+  border: 1px solid rgba(194, 255, 99, 0.22);
+  border-radius: 9999px;
+  background: linear-gradient(135deg, rgba(194, 255, 99, 0.16), rgba(115, 245, 215, 0.16));
+  color: #efffc4;
+  font-family: "Bahnschrift", "Segoe UI", "Trebuchet MS", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.wallet-button-shell .wallet-adapter-button-trigger.wallet-button-reset:hover {
+  background: linear-gradient(135deg, rgba(194, 255, 99, 0.24), rgba(115, 245, 215, 0.22));
+}
+
+.wallet-button-shell .wallet-adapter-dropdown-list,
+.wallet-button-shell .wallet-adapter-modal-wrapper {
+  font-family: "Bahnschrift", "Segoe UI", "Trebuchet MS", sans-serif;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
