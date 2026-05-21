@@ -8,12 +8,17 @@ export type CreateOrderInput = {
   productName: string;
   walletAddress: string;
   purchaseMode: "fixed" | "dynamic";
+  referenceSymbol?: string;
+  entryPriceUsd?: number;
   leverageTier?: "1x" | "2x" | "3x";
   depositUsdc?: number;
   amountUsdc: number;
   receiverName: string;
   phone: string;
   address: string;
+  cycleStartAt?: string;
+  settlementAt?: string;
+  finalPaymentDeadline?: string;
 };
 
 export type OrderRecord = CreateOrderInput & {

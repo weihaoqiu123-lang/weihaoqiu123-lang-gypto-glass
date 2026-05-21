@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PaymentStatusPanel } from "@/components/payment-status-panel";
+import { SettlementCountdown } from "@/components/settlement-countdown";
 import { getOrderByOrderNo } from "@/lib/orders";
 import { paymentConfig } from "@/lib/payment-config";
 import { buildQrDataUrl } from "@/lib/qr";
+import { formatUtcDateTime } from "@/lib/settlement-cycle";
 import { buildSolanaPayUrl } from "@/lib/solana-pay";
 
 type OrderPageProps = {
@@ -71,6 +73,27 @@ export default async function OrderPage({ params }: OrderPageProps) {
             <p className="text-sm text-[#8da7a0]">Wallet</p>
             <p className="mt-2 break-all text-sm text-[#dffdf4]">{order.walletAddress}</p>
           </div>
+
+          {order.purchaseMode === "dynamic" && order.settlementAt ? (
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              <SettlementCountdown settlementAt={order.settlementAt} />
+              <div className="rounded-[1.4rem] border border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.03)] px-4 py-4">
+                <p className="text-sm text-[#8da7a0]">Reference market</p>
+                <p className="mt-2 text-lg font-semibold text-white">
+                  {order.referenceSymbol ?? "N/A"} entry at{" "}
+                  {order.entryPriceUsd ? `$${order.entryPriceUsd.toFixed(2)}` : "N/A"}
+                </p>
+                <p className="mt-3 text-sm leading-6 text-[#bad7d0]">
+                  Shared weekly UTC settlement: {formatUtcDateTime(order.settlementAt)}
+                </p>
+                {order.finalPaymentDeadline ? (
+                  <p className="mt-2 text-sm leading-6 text-[#bad7d0]">
+                    Final payment deadline: {formatUtcDateTime(order.finalPaymentDeadline)}
+                  </p>
+                ) : null}
+              </div>
+            </div>
+          ) : null}
         </div>
 
         <div className="flex flex-col gap-6">
@@ -85,8 +108,9 @@ export default async function OrderPage({ params }: OrderPageProps) {
               </p>
               {order.purchaseMode === "dynamic" ? (
                 <p className="mt-3 text-sm leading-6 text-[#103139]">
-                  After the 7-day settlement window, the remaining balance opens
-                  for 24 hours. If unpaid, the deposit is forfeited.
+                  Dynamic orders now share one weekly UTC settlement point. Your
+                  entry price was captured at checkout, and the remaining balance
+                  opens for 24 hours after settlement.
                 </p>
               ) : (
                 <p className="mt-3 text-sm leading-6 text-[#103139]">

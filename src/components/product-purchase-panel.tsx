@@ -8,6 +8,8 @@ import { WalletConnectButton } from "@/components/wallet-connect-button";
 
 type ProductPurchasePanelProps = {
   product: Product;
+  selectedColor?: string;
+  selectedSize?: string;
 };
 
 type PurchaseMode = "fixed" | "dynamic";
@@ -26,7 +28,11 @@ type OrderErrorResponse = {
   error?: string;
 };
 
-export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
+export function ProductPurchasePanel({
+  product,
+  selectedColor,
+  selectedSize,
+}: ProductPurchasePanelProps) {
   const router = useRouter();
   const { publicKey, connected } = useWallet();
   const [purchaseMode, setPurchaseMode] = useState<PurchaseMode>("fixed");
@@ -88,26 +94,54 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
   }
 
   return (
-    <div className="glass-panel rounded-[2rem] p-6">
-      <p className="text-xs uppercase tracking-[0.24em] text-[#97f6e1]">
-        Purchase panel
-      </p>
-      <h2 className="mt-3 text-2xl font-semibold text-white">
-        Reserve this frame with USDC
-      </h2>
-      <p className="mt-3 text-sm leading-6 text-[#b8d4ce]">
-        We are wiring in real payment next. For now, this creates a valid draft
-        order and prepares the checkout shape.
-      </p>
+    <div className="rounded-[2rem] border border-[rgba(24,20,17,0.08)] bg-[#fbfaf7] p-6 shadow-[0_16px_40px_rgba(0,0,0,0.08)]">
+      <div className="border-b border-[rgba(24,20,17,0.08)] pb-5">
+        <p className="text-[11px] uppercase tracking-[0.24em] text-[#958a7d]">
+          Purchase
+        </p>
+        <div className="mt-4 flex items-end justify-between gap-4">
+          <div>
+            <p className="text-sm text-[#958a7d]">From</p>
+            <p className="mt-1 text-3xl font-semibold text-[#181411]">
+              {product.basePriceUsdc} USDC
+            </p>
+          </div>
+          <p className="text-right text-sm leading-6 text-[#5d564d]">
+            Dynamic range
+            <br />
+            <span className="font-semibold text-[#8f6222]">{product.priceRangeUsdc}</span>
+          </p>
+        </div>
+        {selectedColor || selectedSize ? (
+          <div className="mt-4 flex flex-wrap gap-3 text-sm text-[#5d564d]">
+            {selectedColor ? (
+              <span className="rounded-full bg-white px-3 py-1.5">
+                Color: <span className="font-semibold text-[#181411]">{selectedColor}</span>
+              </span>
+            ) : null}
+            {selectedSize ? (
+              <span className="rounded-full bg-white px-3 py-1.5">
+                Size: <span className="font-semibold text-[#181411]">{selectedSize}</span>
+              </span>
+            ) : null}
+          </div>
+        ) : null}
+      </div>
 
-      <div className="mt-5 flex flex-wrap gap-3">
+      <div className="mt-5">
+        <p className="text-[11px] uppercase tracking-[0.22em] text-[#958a7d]">
+          Purchase mode
+        </p>
+      </div>
+
+      <div className="mt-3 flex flex-wrap gap-3">
         <button
           type="button"
           onClick={() => setPurchaseMode("fixed")}
           className={`rounded-full px-4 py-2 text-sm font-semibold ${
             purchaseMode === "fixed"
-              ? "bg-[linear-gradient(135deg,#c2ff63,#73f5d7)] text-[#041115]"
-              : "border border-[rgba(255,255,255,0.08)] text-[#d7f7ef]"
+              ? "bg-[#181411] text-[#f7f3ec]"
+              : "border border-[rgba(24,20,17,0.08)] text-[#5d564d]"
           }`}
         >
           Fixed buy
@@ -117,8 +151,8 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
           onClick={() => setPurchaseMode("dynamic")}
           className={`rounded-full px-4 py-2 text-sm font-semibold ${
             purchaseMode === "dynamic"
-              ? "bg-[linear-gradient(135deg,#72b6ff,#73f5d7)] text-[#041115]"
-              : "border border-[rgba(255,255,255,0.08)] text-[#d7f7ef]"
+              ? "bg-[#c58b2a] text-[#fffaf2]"
+              : "border border-[rgba(24,20,17,0.08)] text-[#5d564d]"
           }`}
         >
           Dynamic buy
@@ -126,7 +160,11 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
       </div>
 
       {purchaseMode === "dynamic" ? (
-        <div className="mt-5 grid grid-cols-3 gap-3">
+        <div className="mt-5">
+          <p className="text-[11px] uppercase tracking-[0.22em] text-[#958a7d]">
+            Deposit tier
+          </p>
+          <div className="mt-3 grid grid-cols-3 gap-3">
           {product.leverageTiers.map((tier) => (
             <button
               key={tier.tier}
@@ -134,24 +172,30 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
               onClick={() => setLeverageTier(tier.tier)}
               className={`rounded-[1.4rem] px-4 py-4 text-left transition-transform hover:-translate-y-0.5 ${
                 leverageTier === tier.tier
-                  ? "bg-[linear-gradient(180deg,rgba(194,255,99,0.16),rgba(115,245,215,0.12))] text-white"
-                  : "border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.03)] text-[#d8f0ea]"
+                  ? "border border-[rgba(197,139,42,0.28)] bg-[rgba(197,139,42,0.08)] text-[#181411]"
+                  : "border border-[rgba(24,20,17,0.08)] bg-white text-[#5d564d]"
               }`}
             >
-              <p className="text-xs uppercase tracking-[0.2em] text-[#8ba59f]">
+              <p className="text-xs uppercase tracking-[0.2em] text-[#958a7d]">
                 {tier.tier}
               </p>
               <p className="mt-2 text-lg font-semibold">{tier.depositUsdc} USDC</p>
             </button>
           ))}
+          </div>
         </div>
       ) : null}
 
-      <div className="mt-5 rounded-[1.5rem] border border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.03)] p-4">
-        <p className="text-sm text-[#8ea8a1]">Wallet status</p>
+      <div className="mt-5 rounded-[1.5rem] border border-[rgba(24,20,17,0.08)] bg-white p-4">
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-sm text-[#958a7d]">Wallet</p>
+          <span className="text-[11px] uppercase tracking-[0.16em] text-[#958a7d]">
+            Solana
+          </span>
+        </div>
         <div className="mt-3 flex flex-col gap-3">
           <WalletConnectButton />
-          <p className="text-sm text-[#c4dfd8]">
+          <p className="text-sm text-[#5d564d]">
             {connected && publicKey
               ? `Connected: ${publicKey.toBase58().slice(0, 4)}...${publicKey.toBase58().slice(-4)}`
               : "Connect a Solana wallet to create an order."}
@@ -160,43 +204,50 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
       </div>
 
       <form className="mt-5 grid gap-4" onSubmit={handleSubmit}>
+        <div>
+          <p className="text-[11px] uppercase tracking-[0.22em] text-[#958a7d]">
+            Shipping details
+          </p>
+        </div>
         <label className="grid gap-2">
-          <span className="text-sm font-medium text-[#dffdf4]">Receiver name</span>
+          <span className="text-sm font-medium text-[#181411]">Receiver name</span>
           <input
             value={receiverName}
             onChange={(event) => setReceiverName(event.target.value)}
-            className="rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.03)] px-4 py-3 text-white outline-none placeholder:text-[#76918a]"
+            className="rounded-2xl border border-[rgba(24,20,17,0.08)] bg-white px-4 py-3 text-[#181411] outline-none placeholder:text-[#958a7d]"
             placeholder="Alex Sol"
           />
         </label>
 
         <label className="grid gap-2">
-          <span className="text-sm font-medium text-[#dffdf4]">Phone</span>
+          <span className="text-sm font-medium text-[#181411]">Phone</span>
           <input
             value={phone}
             onChange={(event) => setPhone(event.target.value)}
-            className="rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.03)] px-4 py-3 text-white outline-none placeholder:text-[#76918a]"
+            className="rounded-2xl border border-[rgba(24,20,17,0.08)] bg-white px-4 py-3 text-[#181411] outline-none placeholder:text-[#958a7d]"
             placeholder="+1 555 010 2048"
           />
         </label>
 
         <label className="grid gap-2">
-          <span className="text-sm font-medium text-[#dffdf4]">Address</span>
+          <span className="text-sm font-medium text-[#181411]">Address</span>
           <textarea
             value={address}
             onChange={(event) => setAddress(event.target.value)}
-            className="min-h-28 rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.03)] px-4 py-3 text-white outline-none placeholder:text-[#76918a]"
+            className="min-h-28 rounded-2xl border border-[rgba(24,20,17,0.08)] bg-white px-4 py-3 text-[#181411] outline-none placeholder:text-[#958a7d]"
             placeholder="English shipping address"
           />
         </label>
 
-        <div className="rounded-[1.5rem] border border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.03)] px-4 py-4">
-          <p className="text-sm text-[#8ea8a1]">Pay now</p>
-          <p className="mt-2 text-3xl font-semibold text-white">{payNowAmount} USDC</p>
-          <p className="mt-2 text-sm leading-6 text-[#bad7d0]">
+        <div className="rounded-[1.5rem] border border-[rgba(24,20,17,0.08)] bg-white px-4 py-4">
+          <div className="flex items-center justify-between gap-4">
+            <p className="text-sm text-[#958a7d]">Pay now</p>
+            <p className="text-2xl font-semibold text-[#181411]">{payNowAmount} USDC</p>
+          </div>
+          <p className="mt-3 text-sm leading-6 text-[#5d564d]">
             {purchaseMode === "fixed"
               ? "Fixed buy charges the full product price immediately."
-              : `Dynamic buy takes the ${leverageTier} deposit now and opens a 24-hour final payment window after settlement.`}
+              : `Dynamic buy takes the ${leverageTier} deposit now and settles on the shared weekly close.`}
           </p>
         </div>
 
@@ -216,7 +267,7 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
         <button
           type="submit"
           disabled={!connected || submitting}
-          className="rounded-full bg-[linear-gradient(135deg,#c2ff63,#73f5d7)] px-5 py-3 text-sm font-bold text-[#041115] disabled:cursor-not-allowed disabled:opacity-50"
+          className="rounded-full bg-[#181411] px-5 py-3 text-sm font-bold text-[#f7f3ec] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {submitting ? "Creating order..." : "Create order draft"}
         </button>

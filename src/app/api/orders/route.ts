@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import { getProductBySlug } from "@/data/products";
 import { createOrder, listOrders } from "@/lib/orders";
+import { getBinanceSpotPriceUsdt } from "@/lib/binance-market";
 import { getDepositForTier, getFixedPrice } from "@/lib/order-pricing";
+import { getCurrentWeeklySettlementCycle } from "@/lib/settlement-cycle";
 
 export async function GET() {
   return NextResponse.json({ orders: await listOrders() });
@@ -52,17 +54,52 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid leverage tier." }, { status: 400 });
   }
 
+  let referenceSymbol: string | undefined;
+  let entryPriceUsd: number | undefined;
+  let cycleStartAt: string | undefined;
+  let settlementAt: string | undefined;
+  let finalPaymentDeadline: string | undefined;
+
+  if (body.purchaseMode === "dynamic") {
+    referenceSymbol = product.symbol;
+
+    try {
+      const market = await getBinanceSpotPriceUsdt(referenceSymbol);
+      const cycle = getCurrentWeeklySettlementCycle();
+
+      entryPriceUsd = market.price;
+      cycleStartAt = cycle.cycleStartAt;
+      settlementAt = cycle.settlementAt;
+      finalPaymentDeadline = cycle.finalPaymentDeadline;
+    } catch (error) {
+      return NextResponse.json(
+        {
+          error:
+            error instanceof Error
+              ? error.message
+              : "Unable to create a dynamic order right now.",
+        },
+        { status: 502 },
+      );
+    }
+  }
+
   const order = await createOrder({
     productId: product.id,
     productName: product.name,
     walletAddress: body.walletAddress.trim(),
     purchaseMode: body.purchaseMode,
+    referenceSymbol,
+    entryPriceUsd,
     leverageTier: body.purchaseMode === "dynamic" ? body.leverageTier ?? "1x" : undefined,
     depositUsdc: body.purchaseMode === "dynamic" ? amountUsdc : undefined,
     amountUsdc,
     receiverName: body.receiverName.trim(),
     phone: body.phone.trim(),
     address: body.address.trim(),
+    cycleStartAt,
+    settlementAt,
+    finalPaymentDeadline,
   });
 
   return NextResponse.json({ order });

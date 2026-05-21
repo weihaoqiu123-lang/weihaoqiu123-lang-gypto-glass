@@ -1,149 +1,149 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ProductPurchasePanel } from "@/components/product-purchase-panel";
+import { SiteFooter } from "@/components/site-footer";
+import { ProductGallery } from "@/components/product-gallery";
+import { ProductSummaryPanel } from "@/components/product-summary-panel";
+import { SiteHeader } from "@/components/site-header";
 import { getProductBySlug } from "@/data/products";
 
 type ProductPageProps = {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{
+    color?: string;
+    size?: string;
+    image?: string;
+    sizeChart?: string;
+  }>;
 };
 
-export default async function ProductPage({ params }: ProductPageProps) {
+export default async function ProductPage({ params, searchParams }: ProductPageProps) {
   const { slug } = await params;
+  const query = await searchParams;
   const product = getProductBySlug(slug);
 
   if (!product) {
     notFound();
   }
 
+  const selectedColor = product.colors.includes(query.color ?? "")
+    ? query.color
+    : product.colors[0];
+  const selectedSize = product.sizes.some((size) => size.value === query.size)
+    ? query.size
+    : product.sizes[0]?.value;
+  const selectedImageIndex = Number.isFinite(Number(query.image))
+    ? Number(query.image)
+    : 0;
+  const sizeChartOpen = query.sizeChart === "1";
+
   return (
-    <main className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-5 pb-16 pt-6 sm:px-8 lg:px-10">
-      <div className="glass-panel rounded-full px-5 py-3 text-sm text-[#b9d6cf]">
-        <Link href="/" className="text-white">
-          Gypto-Glass
-        </Link>{" "}
-        / Products / {product.name}
-      </div>
+    <main className="flex w-full flex-col bg-[#f5efe5] pb-20">
+      <section className="w-full overflow-hidden bg-[#f5efe5]">
+        <SiteHeader active="sunglasses" />
+      </section>
 
-      <section className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-        <div className="glass-panel rounded-[2rem] p-6 sm:p-8">
-          <p className="text-xs uppercase tracking-[0.28em] text-[#98f6e1]">
-            {product.status}
-          </p>
-          <h1 className="mt-4 text-4xl font-semibold tracking-[-0.05em] text-white sm:text-5xl">
-            {product.name}
-          </h1>
-          <p className="mt-4 max-w-2xl text-lg leading-8 text-[#bad7d0]">
-            {product.headline}
-          </p>
-
-          <div className="mt-8 rounded-[1.8rem] border border-[rgba(255,255,255,0.06)] bg-[radial-gradient(circle_at_top,rgba(115,245,215,0.14),transparent_42%),linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01))] px-6 py-8">
-            <div className="mx-auto aspect-[1.45/1] max-w-xl rounded-[1.8rem] border border-[rgba(194,255,99,0.12)] bg-[linear-gradient(135deg,rgba(5,16,22,0.6),rgba(15,52,60,0.62))] px-8 py-8 shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
-              <div className="flex h-full flex-col justify-between">
-                <div className="flex items-center justify-between text-xs uppercase tracking-[0.24em] text-[#d7ff7b]">
-                  <span>{product.symbol} bound release</span>
-                  <span>Drop 01</span>
-                </div>
-
-                <div className="relative mx-auto h-40 w-full max-w-[22rem]">
-                  <div className="absolute left-1/2 top-1/2 h-24 w-24 -translate-x-[118%] -translate-y-1/2 rounded-full border-[6px] border-[#e5fff7] shadow-[0_0_30px_rgba(115,245,215,0.12)]" />
-                  <div className="absolute left-1/2 top-1/2 h-24 w-24 translate-x-[18%] -translate-y-1/2 rounded-full border-[6px] border-[#e5fff7] shadow-[0_0_30px_rgba(115,245,215,0.12)]" />
-                  <div className="absolute left-1/2 top-1/2 h-2.5 w-22 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#e5fff7]" />
-                  <div className="absolute left-[3%] top-[47%] h-2 w-24 rounded-full bg-[linear-gradient(90deg,#e5fff7,transparent)]" />
-                  <div className="absolute right-[3%] top-[47%] h-2 w-24 rounded-full bg-[linear-gradient(90deg,transparent,#e5fff7)]" />
-                </div>
-
-                <div className="grid gap-3 sm:grid-cols-3">
-                  {product.colors.map((color) => (
-                    <div
-                      key={color}
-                      className="rounded-2xl border border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.04)] px-4 py-3"
-                    >
-                      <p className="text-xs uppercase tracking-[0.2em] text-[#8fa8a1]">
-                        Color
-                      </p>
-                      <p className="mt-2 text-sm font-medium text-white">{color}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
+      <section className="mx-auto w-full max-w-[1600px] px-4 pt-8 sm:px-6 lg:px-8">
+        <div className="border-b border-[rgba(23,19,16,0.08)] pb-6 text-sm text-[#6d645a]">
+          <Link href="/" className="text-[#181411]">
+            Home
+          </Link>{" "}
+          &gt;{" "}
+          <Link href="/products" className="text-[#181411]">
+            Sunglasses
+          </Link>{" "}
+          &gt; {product.name}
         </div>
 
-        <aside className="flex flex-col gap-6">
-          <ProductPurchasePanel product={product} />
+        <div className="grid gap-10 pt-8 xl:grid-cols-[1.36fr_0.64fr]">
+          <ProductGallery
+            product={product}
+            selectedColor={selectedColor}
+            selectedSize={selectedSize}
+            selectedImageIndex={selectedImageIndex}
+          />
+          <ProductSummaryPanel
+            product={product}
+            selectedColor={selectedColor}
+            selectedSize={selectedSize}
+            selectedImageIndex={selectedImageIndex}
+          />
+        </div>
 
-          <div className="glass-panel rounded-[2rem] p-6">
-            <p className="text-xs uppercase tracking-[0.24em] text-[#97f6e1]">
-              Deposit tiers
+        <section className="mt-12 grid gap-8 border-t border-[rgba(23,19,16,0.08)] pt-10 lg:grid-cols-[0.72fr_0.28fr]">
+          <div className="overflow-hidden rounded-[2rem] bg-[#f7f3ec]">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={product.lifestyleImage}
+              alt={`${product.name} mature fit preview`}
+              className="aspect-[4/3] w-full object-cover"
+            />
+          </div>
+          <div className="rounded-[2rem] border border-[rgba(23,19,16,0.08)] bg-white p-6">
+            <p className="text-[11px] uppercase tracking-[0.22em] text-[#8b806f]">
+              Mature fit preview
             </p>
-            <div className="mt-4 grid gap-3">
-              {product.leverageTiers.map((item) => (
+            <h2 className="mt-3 text-3xl font-semibold tracking-[-0.04em] text-[#171310]">
+              See the frame in a softer everyday context.
+            </h2>
+            <p className="mt-4 text-sm leading-7 text-[#61584e]">
+              We keep a warm at-home reference image on each product page so you can judge how the front shape feels outside a plain white product background. The gallery above still carries the three technical product views for comparison.
+            </p>
+            <div className="mt-6 rounded-[1.4rem] bg-[#f7f1e8] p-5 text-sm leading-7 text-[#61584e]">
+              Front view on storefront. Angle and side view inside the gallery. Lifestyle reference below for softer fit judgment.
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <div className="mx-auto mt-10 w-full max-w-[1600px] px-4 sm:px-6 lg:px-8">
+        <SiteFooter />
+      </div>
+
+      {sizeChartOpen ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(0,0,0,0.72)] px-4">
+          <div className="w-full max-w-2xl rounded-[2rem] bg-[#f7f1e8] p-6 shadow-[0_30px_90px_rgba(0,0,0,0.2)]">
+            <div className="flex items-center justify-between gap-4 border-b border-[rgba(23,19,16,0.08)] pb-4">
+              <div>
+                <p className="text-[11px] uppercase tracking-[0.22em] text-[#8b806f]">
+                  Size chart
+                </p>
+                <h3 className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-[#171310]">
+                  Frame measurements
+                </h3>
+              </div>
+              <Link
+                href={`/products/${product.slug}?${new URLSearchParams({
+                  color: selectedColor ?? product.colors[0],
+                  size: selectedSize ?? product.sizes[0]?.value ?? "",
+                  image: String(selectedImageIndex),
+                }).toString()}`}
+                className="rounded-full border border-[rgba(23,19,16,0.12)] px-4 py-2 text-sm font-semibold text-[#171310]"
+              >
+                Close
+              </Link>
+            </div>
+
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              {product.sizes.map((size) => (
                 <div
-                  key={item.tier}
-                  className="rounded-[1.4rem] border border-[rgba(255,255,255,0.06)] bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.02))] px-4 py-4"
+                  key={size.value}
+                  className="rounded-[1.4rem] border border-[rgba(23,19,16,0.08)] bg-white p-5"
                 >
-                  <div className="flex items-center justify-between">
-                    <p className="text-lg font-semibold text-white">{item.tier}</p>
-                    <p className="text-sm font-semibold text-[#d9ff81]">
-                      {item.depositUsdc} USDC
-                    </p>
-                  </div>
-                  <p className="mt-3 text-sm leading-6 text-[#b8d4ce]">
-                    {item.summary}
+                  <p className="text-lg font-semibold text-[#171310]">
+                    {size.value} ({size.fit})
                   </p>
+                  <div className="mt-4 space-y-2 text-sm text-[#61584e]">
+                    <p>Lens width: {size.value} mm</p>
+                    <p>Bridge: 24 mm</p>
+                    <p>Temple length: 145 mm</p>
+                    <p>Lens height: 39 mm</p>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
-        </aside>
-      </section>
-
-      <section className="grid gap-6 lg:grid-cols-[1fr_1fr]">
-        <div className="glass-panel rounded-[2rem] p-6 sm:p-8">
-          <p className="text-xs uppercase tracking-[0.24em] text-[#97f6e1]">
-            Description
-          </p>
-          <p className="mt-4 max-w-2xl text-base leading-7 text-[#b8d3cd]">
-            {product.description}
-          </p>
         </div>
-
-        <div className="glass-panel rounded-[2rem] p-6 sm:p-8">
-          <p className="text-xs uppercase tracking-[0.24em] text-[#d7ff79]">
-            Why this works
-          </p>
-          <div className="mt-4 grid gap-3">
-            {product.highlights.map((highlight) => (
-              <div
-                key={highlight}
-                className="rounded-[1.3rem] border border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.03)] px-4 py-3 text-sm leading-6 text-[#c0ddd7]"
-              >
-                {highlight}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="rounded-[2rem] border border-[rgba(194,255,99,0.14)] bg-[linear-gradient(135deg,rgba(194,255,99,0.1),rgba(115,245,215,0.06),rgba(114,182,255,0.08))] px-6 py-7">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <p className="text-xs uppercase tracking-[0.24em] text-[#163238]">
-              Fulfillment note
-            </p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-[-0.04em] text-[#041013]">
-              {product.shippingWindow}
-            </h2>
-          </div>
-          <Link
-            href="/"
-            className="rounded-full bg-[#041013] px-5 py-3 text-sm font-semibold text-[#eafff8]"
-          >
-            Back to home
-          </Link>
-        </div>
-      </section>
+      ) : null}
     </main>
   );
 }
